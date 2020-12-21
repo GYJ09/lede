@@ -96,6 +96,7 @@ jobs:
           # 常用LuCI插件选择:
           cat >> .config <<EOF
           CONFIG_PACKAGE_luci-app-passwall=y
+          CONFIG_PACKAGE_luci-app-privoxy=y
           EOF
           # LuCI主题:
           cat >> .config <<EOF
