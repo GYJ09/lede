@@ -54,7 +54,6 @@ jobs:
           mkdir openwrt-packages
           cd openwrt-packages
           git clone https://github.com/xiaorouji/openwrt-passwall
-          git clone https://github.com/jerrykuku/luci-app-vssr
           
 
       - name: Update feeds
@@ -98,7 +97,6 @@ jobs:
           cat >> .config <<EOF
           CONFIG_PACKAGE_luci-app-passwall=y
           CONFIG_PACKAGE_luci-app-privoxy=y
-          CONFIG_PACKAGE_luci-app-vssr=y
           EOF
           # LuCI主题:
           cat >> .config <<EOF
