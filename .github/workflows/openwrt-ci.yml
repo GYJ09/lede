@@ -1,9 +1,10 @@
+#
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2019 P3TERX <https://p3terx.com>
+# Copyright (C) 2020 KFERMercer <KFER.Mercer@gmail.com>
 # 
 # <https://github.com/KFERMercer/OpenWrt-CI>
-#
-# Copyright (C) 2019 P3TERX
-#
-# Copyright (C) 2020 KFERMercer
 #
 
 name: OpenWrt-XiaoMiR3G
@@ -42,10 +43,19 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
           sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php* android*
           sudo -E apt-get update
-          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig libtinfo5
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get clean
-          
+
+          # sudo mkdir -p -m 777 /mnt/openwrt/bin /mnt/openwrt/build_dir/host /mnt/openwrt/build_dir/hostpkg /mnt/openwrt/dl /mnt/openwrt/feeds /mnt/openwrt/staging_dir
+          # ln -s /mnt/openwrt/bin ./bin
+          # mkdir -p ./build_dir
+          # ln -s -f /mnt/openwrt/build_dir/host ./build_dir/host
+          # ln -s -f /mnt/openwrt/build_dir/hostpkg ./build_dir/hostpkg
+          # ln -s /mnt/openwrt/dl ./dl
+          # ln -s /mnt/openwrt/feeds ./feeds
+          # ln -s /mnt/openwrt/staging_dir ./staging_dir
+
           df -h
           
       - name: 自定义插件主题。
@@ -54,11 +64,9 @@ jobs:
           mkdir openwrt-packages
           cd openwrt-packages
           git clone https://github.com/xiaorouji/openwrt-passwall
-          
 
       - name: Update feeds
         run: |
-          sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -66,8 +74,11 @@ jobs:
         run: |
           rm -f ./.config*
           touch ./.config
+
           #
           # 在 cat >> .config <<EOF 到 EOF 之间粘贴你的编译配置, 需注意缩进关系
+          # 例如:
+
           cat >> .config <<EOF
           CONFIG_TARGET_ramips=y
           CONFIG_TARGET_ramips_mt7621=y
@@ -80,11 +91,13 @@ jobs:
           cat >> .config <<EOF
           CONFIG_TARGET_IMAGES_GZIP=y
           EOF
+          
           # IPv6支持:
           cat >> .config <<EOF
           CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
           CONFIG_PACKAGE_ipv6helper=y
           EOF
+          
           # USB3.0支持:
           cat >> .config <<EOF
           CONFIG_PACKAGE_kmod-usb-ohci=y
@@ -93,26 +106,52 @@ jobs:
           CONFIG_PACKAGE_kmod-usb2-pci=y
           CONFIG_PACKAGE_kmod-usb3=y
           EOF
+          
           # 常用LuCI插件选择:
           cat >> .config <<EOF
           CONFIG_PACKAGE_luci-app-passwall=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ipt2socks=y
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks is not set
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR=y
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_socks is not set
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_socks is not set
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_V2ray=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Brook=y
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_kcptun is not set
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_haproxy=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_pdnsd=y
+          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_dns2socks=y
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_v2ray-plugin is not set
+          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_simple-obfs is not set
           CONFIG_PACKAGE_luci-app-privoxy=y
+          # CONFIG_PACKAGE_luci-app-ddns is not set
+          # CONFIG_PACKAGE_luci-app-accesscontrol is not set
+          # CONFIG_PACKAGE_luci-app-upnp is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-ssr-plus is not set
+          # CONFIG_PACKAGE_luci-app-vsftpd is not set
           EOF
+          
           # LuCI主题:
           cat >> .config <<EOF
           CONFIG_PACKAGE_luci-theme-argon=y
           CONFIG_PACKAGE_luci-theme-netgear=y
           EOF
           
+
           #
           # ===============================================================
           # 
+
           sed -i 's/^[ \t]*//g' ./.config
           make defconfig
 
       - name: Make download
         run: |
-          make download -j8
+          make download -j8 || make download -j1 V=s
           rm -rf $(find ./dl/ -size -1024c)
           df -h
 
@@ -154,7 +193,6 @@ jobs:
         with:
           name: OpenWrt_firmware
           path: ./bin/targets/
-  
 
       - name: Upload release asset
         if: github.event == 'release'
