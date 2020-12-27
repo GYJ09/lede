@@ -63,7 +63,8 @@ jobs:
           cd package
           mkdir openwrt-packages
           cd openwrt-packages
-          git clone https://github.com/fw876/helloworld
+          git clone https://github.com/jerrykuku/lua-maxminddb.git
+          git clone https://github.com/jerrykuku/luci-app-vssr.git
 
       - name: Update feeds
         run: |
@@ -109,7 +110,12 @@ jobs:
           
           # 常用LuCI插件选择:
           cat >> .config <<EOF
-          CONFIG_PACKAGE_luci-app-helloworld=y
+          CONFIG_PACKAGE_luci-app-vssr=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_ShadowsocksR_Server=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_V2ray=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Trojan=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Xray=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Kcptun=y
           CONFIG_PACKAGE_luci-app-privoxy=y
           # CONFIG_PACKAGE_luci-app-ddns is not set
           # CONFIG_PACKAGE_luci-app-accesscontrol is not set
