@@ -64,6 +64,8 @@ jobs:
           mkdir openwrt-packages
           cd openwrt-packages
           git clone https://github.com/xiaorouji/openwrt-passwall
+          git clone https://github.com/jerrykuku/lua-maxminddb.git
+          git clone https://github.com/jerrykuku/luci-app-vssr.git
 
       - name: Update feeds
         run: |
@@ -109,23 +111,12 @@ jobs:
           
           # 常用LuCI插件选择:
           cat >> .config <<EOF
-          CONFIG_PACKAGE_luci-app-passwall=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ipt2socks=y
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks is not set
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR=y
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_socks is not set
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_socks is not set
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_V2ray=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Brook is not set
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Xray=y
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_kcptun is not set
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_haproxy=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_pdnsd=y
-          CONFIG_PACKAGE_luci-app-passwall_INCLUDE_dns2socks=y
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_v2ray-plugin is not set
-          # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_simple-obfs is not set
+          CONFIG_PACKAGE_luci-app-vssr=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_ShadowsocksR_Server=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_V2ray=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Trojan=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Xray=y
+          CONFIG_PACKAGE_luci-app-vssr_INCLUDE_Kcptun=y
           CONFIG_PACKAGE_luci-app-privoxy=y
           # CONFIG_PACKAGE_luci-app-ddns is not set
           # CONFIG_PACKAGE_luci-app-accesscontrol is not set
